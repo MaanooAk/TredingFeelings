@@ -6,6 +6,7 @@ import org.apache.http.impl.client.HttpClients;
 import com.mashape.unirest.http.Unirest;
 
 import gr.auth.sam.tredingfeelings.impl.MongoStorage;
+import gr.auth.sam.tredingfeelings.impl.Sentiment;
 import gr.auth.sam.tredingfeelings.impl.Twitter;
 
 
@@ -20,9 +21,10 @@ public class Main {
         Unirest.setHttpClient(HttpClients.custom().disableCookieManagement().build());
 
         final ITwitter twitter = new Twitter();
+        final ISentiment sentiment = new Sentiment();
         final IStorage storage = new MongoStorage();
 
-        Master m = new Master(twitter, storage);
+        Master m = new Master(twitter, sentiment, storage);
         m.start();
 
     }

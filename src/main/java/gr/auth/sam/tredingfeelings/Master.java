@@ -20,10 +20,12 @@ public class Master {
     //
 
     private final ITwitter twitter;
+    private final ISentiment sentiment;
     private final IStorage storage;
 
-    public Master(ITwitter twitter, IStorage storage) {
+    public Master(ITwitter twitter, ISentiment sentiment, IStorage storage) {
         this.twitter = twitter;
+        this.sentiment = sentiment;
         this.storage = storage;
     }
 
