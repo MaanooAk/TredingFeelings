@@ -17,5 +17,6 @@ public interface IStorage {
 
     void insert(String collection, JSONObject object);
 
+    void drop();
     // TODO add methods to get the stored objects
 }
