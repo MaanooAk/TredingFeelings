@@ -1,10 +1,12 @@
 package gr.auth.sam.tredingfeelings.impl;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoDatabase;
 import gr.auth.sam.tredingfeelings.IStorage;
+import org.bson.Document;
 import org.json.JSONObject;
 
 public class Storage implements IStorage {
@@ -22,11 +24,7 @@ public class Storage implements IStorage {
 
             database = mongoClient.getDatabase("twitter");
 
-            System.out.println("Connection established");
-
-            database.createCollection("twitterCollection");
-
-            System.out.println("Collection created established");
+            System.out.println("Connection established...");
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -41,11 +39,12 @@ public class Storage implements IStorage {
 
     @Override
     public void createCollection(String name) {
-
+        database.createCollection("twitterCollection");
+        System.out.println("Collection created...");
     }
 
     @Override
     public void insert(String collection, JSONObject object) {
-
+        database.getCollection(collection).insertOne(Document.parse(object.toString()));
     }
 }
