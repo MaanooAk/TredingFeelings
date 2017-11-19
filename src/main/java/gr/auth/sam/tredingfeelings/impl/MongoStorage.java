@@ -1,11 +1,8 @@
 
 package gr.auth.sam.tredingfeelings.impl;
 
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import gr.auth.sam.tredingfeelings.IStorage;
