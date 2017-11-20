@@ -2,14 +2,17 @@
 package gr.auth.sam.tredingfeelings;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.sun.xml.internal.bind.api.impl.NameConverter;
 import org.apache.http.auth.AuthenticationException;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 
 /*
@@ -28,6 +31,8 @@ public class Master {
     private final ITwitter twitter;
     private final ISentiment sentiment;
     private final IStorage storage;
+    private ArrayList<String> stopwords;
+    private ArrayList<String> trends;
 
     public Master(ITwitter twitter, ISentiment sentiment, IStorage storage) {
         this.twitter = twitter;
@@ -40,6 +45,7 @@ public class Master {
 
         try {
             storage.open();
+            loadStopWords();
             storage.drop();
 
             twitter.authenticate();
@@ -50,6 +56,8 @@ public class Master {
         } catch (AuthenticationException e) {
             e.printStackTrace();
         } catch (UnirestException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -69,7 +77,6 @@ public class Master {
         return ret;
     }
 
-    ArrayList<String> trends;
 
     private void gatherData() throws UnirestException {
         trends = getTopTrends(twitter.requestTrends(woeid));
@@ -83,11 +90,10 @@ public class Master {
     private void storeTweets(String name) throws UnirestException {
         System.out.println(("Master: storing tweets from: " + name));
         storage.createCollection(name);
-        ArrayList<JSONObject> validTweetsArray = new ArrayList<>();
 
         JSONObject tweets = twitter.requestTweets(name);
         System.out.println(("Master:    fetched first 100 tweets from: " + name));
-        validTweetsArray.addAll(processTweets(tweets));
+        processTweets(tweets, name);
         String max_id = getMax_id(tweets);
 
         for (int i = 0; i < 14 && !max_id.equals("not_exist"); i++) {
@@ -95,30 +101,20 @@ public class Master {
             System.out.println(("Master:    fetched first " +
                     String.valueOf(200 + i * 100) + " tweets from: " + name));
 
-            validTweetsArray.addAll(processTweets(tweets));
+            processTweets(tweets, name);
             max_id = getMax_id(tweets);
         }
 
-        System.out.println("Master: total valid tweets for " + name
-                + " count is: " + String.valueOf(validTweetsArray.size()));
-
-        JSONArray validTweets = new JSONArray();
-
-        for (JSONObject tw : validTweetsArray) {
-            validTweets.put(tw);
-        }
-
-        storage.insert(name, new JSONObject().put("tweets", validTweets));
     }
 
-    private ArrayList<JSONObject> processTweets(JSONObject response) {
+    private ArrayList<JSONObject> processTweets(JSONObject response, String collection) {
         ArrayList<JSONObject> validTweets = new ArrayList<>();
 
         JSONArray statuses = response.getJSONArray("statuses");
         for (int i = 0; i < statuses.length(); i++) {
             JSONObject tweet = statuses.getJSONObject(i);
             if (validateTweet(tweet)) {
-                validTweets.add(tweet);
+                storage.insert(collection, tweet);
             }
         }
 
@@ -147,6 +143,50 @@ public class Master {
         }
 
         return max_id;
+    }
+
+    private String normalize(String text) {
+        ArrayList<String> words = new ArrayList<>(Arrays.asList(text.split(" ")));
+
+        for (int i = 0; i < words.size(); i++) {
+            if (isValid(words.get(i))) {
+                // TODO what to do with this..?
+            } else {
+                words.remove(i);
+                i--;
+            }
+        }
+
+        return "";
+    }
+
+    private boolean isValid(String s) {
+        if (!isWord(s))
+            return false;
+        return !isStopWord(s);
+    }
+
+    private boolean isStopWord(String s) {
+        return stopwords.contains(s);
+    }
+
+    private boolean isWord(String word) {
+        char[] chars = word.toCharArray();
+
+        for (char c : chars) {
+            if (!Character.isLetter(c)) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
+
+    private void loadStopWords() throws IOException {
+        stopwords = new ArrayList<>();
+        Stream<String> stream = Files.lines(Paths.get("stopwords_en.txt"));
+        stream.forEach(item -> stopwords.add(item));
     }
 
 }
