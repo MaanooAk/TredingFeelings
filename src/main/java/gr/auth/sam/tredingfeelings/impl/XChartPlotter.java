@@ -15,6 +15,17 @@ import org.knowm.xchart.internal.chartpart.Chart;
 
 import gr.auth.sam.tredingfeelings.IPlotter;
 
+/**
+ * TODO doc
+ * <p>
+ * Usage:
+ * <pre>
+ * IPlotter p = new XChartPlotter();
+ * p.createBarChart(...);
+ * p.show();
+ * </pre>
+ * 
+ */
 public class XChartPlotter implements IPlotter {
 
     protected Chart<?, ?> chart;
@@ -74,8 +85,28 @@ public class XChartPlotter implements IPlotter {
     @Override
     public void createCumulativeChart(String title, int width, int height, String xname, List<Integer> xvalues,
             String yname, List<Integer> yvalues) {
-        // TODO Implement
-        
+
+        // TODO? do we need this here
+        for (int i1 = 1; i1 < yvalues.size(); i1++) {
+            yvalues.set(i1, yvalues.get(i1) + yvalues.get(i1 - 1));
+        }
+
+        final XYChart chart = new XYChartBuilder()
+                .width(width)
+                .height(height)
+                .title(title)
+                .xAxisTitle(xname)
+                .yAxisTitle(yname)
+                .build();
+
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setHasAnnotations(false);
+
+        chart.getStyler().setAxisTickLabelsFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+
+        chart.addSeries("1", xvalues, yvalues);
+
+        this.chart = chart;
     }
 
     @Override
