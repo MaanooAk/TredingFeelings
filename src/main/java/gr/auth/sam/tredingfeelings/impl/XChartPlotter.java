@@ -9,6 +9,8 @@ import org.knowm.xchart.BitmapEncoder.BitmapFormat;
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 
 import gr.auth.sam.tredingfeelings.IPlotter;
@@ -47,8 +49,26 @@ public class XChartPlotter implements IPlotter {
     @Override
     public void createZipfChart(String title, int width, int height, String xname, List<Integer> xvalues, String yname,
             List<Integer> yvalues) {
-        // TODO Implement
-        
+
+        final XYChart chart = new XYChartBuilder()
+                .width(width)
+                .height(height)
+                .title(title)
+                .xAxisTitle(xname)
+                .yAxisTitle(yname)
+                .build();
+
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setHasAnnotations(false);
+
+        chart.getStyler().setAxisTickLabelsFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+
+        chart.getStyler().setXAxisLogarithmic(true);
+        chart.getStyler().setYAxisLogarithmic(true);
+
+        chart.addSeries("1", xvalues, yvalues);
+
+        this.chart = chart;
     }
 
     @Override
