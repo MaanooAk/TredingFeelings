@@ -1,12 +1,7 @@
 
 package gr.auth.sam.tredingfeelings;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.Stream;
 
 import org.apache.http.auth.AuthenticationException;
 import org.json.JSONArray;
@@ -32,13 +27,17 @@ public class Master {
     private final ITwitter twitter;
     private final ISentiment sentiment;
     private final IStorage storage;
-    private ArrayList<String> stopwords;
+    
+    private final Stemmer stemmer;
+
     private ArrayList<String> trends;
 
     public Master(ITwitter twitter, ISentiment sentiment, IStorage storage) {
         this.twitter = twitter;
         this.sentiment = sentiment;
         this.storage = storage;
+        
+        stemmer = new Stemmer();
     }
 
     public void start() {
@@ -46,7 +45,7 @@ public class Master {
 
         try {
             storage.open();
-            loadStopWords();
+
             storage.drop();
 
             twitter.authenticate();
@@ -57,8 +56,6 @@ public class Master {
         } catch (AuthenticationException e) {
             e.printStackTrace();
         } catch (UnirestException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -144,51 +141,6 @@ public class Master {
         }
 
         return max_id;
-    }
-
-    private String normalize(String text) {
-        ArrayList<String> words = new ArrayList<>(Arrays.asList(text.split(" ")));
-
-        for (int i = 0; i < words.size(); i++) {
-            if (isValid(words.get(i))) {
-                // TODO what to do with this..?
-                String temp = words.get(i).toLowerCase();
-            } else {
-                words.remove(i);
-                i--;
-            }
-        }
-
-        return "";
-    }
-
-    private boolean isValid(String s) {
-        if (!isWord(s))
-            return false;
-        return !isStopWord(s);
-    }
-
-    private boolean isStopWord(String s) {
-        return stopwords.contains(s);
-    }
-
-    private boolean isWord(String word) {
-        char[] chars = word.toCharArray();
-
-        for (char c : chars) {
-            if (!Character.isLetter(c)) {
-                return false;
-            }
-        }
-
-        return true;
-
-    }
-
-    private void loadStopWords() throws IOException {
-        stopwords = new ArrayList<>();
-        Stream<String> stream = Files.lines(Paths.get("stopwords_en.txt"));
-        stream.forEach(item -> stopwords.add(item));
     }
 
 }
