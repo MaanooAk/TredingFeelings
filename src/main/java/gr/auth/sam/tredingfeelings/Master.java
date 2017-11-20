@@ -151,6 +151,7 @@ public class Master {
         for (int i = 0; i < words.size(); i++) {
             if (isValid(words.get(i))) {
                 // TODO what to do with this..?
+                String temp = words.get(i).toLowerCase();
             } else {
                 words.remove(i);
                 i--;
