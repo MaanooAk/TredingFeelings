@@ -16,7 +16,7 @@ import org.knowm.xchart.internal.chartpart.Chart;
 import gr.auth.sam.tredingfeelings.IPlotter;
 
 /**
- * TODO doc
+ * Implementation of IPlotter using the XChart library.
  * <p>
  * Usage:
  * <pre>
@@ -24,6 +24,8 @@ import gr.auth.sam.tredingfeelings.IPlotter;
  * p.createBarChart(...);
  * p.show();
  * </pre>
+ * 
+ * @see IPlotter
  * 
  */
 public class XChartPlotter implements IPlotter {

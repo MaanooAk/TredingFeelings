@@ -9,8 +9,18 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 
-/*
- * TODO doc
+/**
+ * A container for the Consumer Key and Consumer Secret which can be loaded from
+ * a properties file, used by {@link Twitter}.
+ * <p>
+ * Example file:
+ * <pre>
+ * consumerKey=[consumer key here]
+ * consumerSecret=[consumer secret here]
+ * <pre>
+ * 
+ * @see Twitter
+ * 
  */
 public class TwitterConfig {
 

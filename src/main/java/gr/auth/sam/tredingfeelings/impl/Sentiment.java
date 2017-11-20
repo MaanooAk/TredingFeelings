@@ -12,7 +12,8 @@ import gr.auth.sam.tredingfeelings.ISentiment;
 
 
 /**
- * TODO doc
+ * Implementation of ISentiment using the text-processing.com API.
+ * 
  */
 public class Sentiment implements ISentiment {
 
