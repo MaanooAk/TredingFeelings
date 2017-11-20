@@ -1,6 +1,9 @@
 
 package gr.auth.sam.tredingfeelings;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.http.impl.client.HttpClients;
 
 import com.mashape.unirest.http.Unirest;
@@ -19,6 +22,9 @@ public class Main {
 
         // twitter sends some weird cookies, ignore them
         Unirest.setHttpClient(HttpClients.custom().disableCookieManagement().build());
+
+        // suppress mongodb's logger
+        Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
 
         final ITwitter twitter = new Twitter();
         final ISentiment sentiment = new Sentiment();
