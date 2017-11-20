@@ -1,9 +1,10 @@
 
 package gr.auth.sam.tredingfeelings;
 
-import org.apache.http.auth.AuthenticationException;
-
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.sun.xml.internal.bind.api.impl.NameConverter;
+import org.apache.http.auth.AuthenticationException;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +37,7 @@ public class Master {
 
     public void start() {
         // TODO Implement
-        // test
+
         try {
             storage.open();
             storage.drop();
@@ -44,7 +45,6 @@ public class Master {
             twitter.authenticate();
 
             gatherData();
-            test();
 
             storage.close();
         } catch (AuthenticationException e) {
@@ -61,7 +61,7 @@ public class Master {
 
         JSONArray trends = jsonObject.getJSONArray("trends");
 
-        for (int i = 0; i < topicsCount; i++) {
+        for (int i = 0; i < 5; i++) {
             JSONObject object = trends.getJSONObject(i);
             ret.add(object.getString("name"));
         }
@@ -82,49 +82,51 @@ public class Master {
 
     private void storeTweets(String name) throws UnirestException {
         System.out.println(("Master: storing tweets from: " + name));
-
         storage.createCollection(name);
+        ArrayList<JSONObject> validTweetsArray = new ArrayList<>();
 
         JSONObject tweets = twitter.requestTweets(name);
         System.out.println(("Master:    fetched first 100 tweets from: " + name));
-        tweets = removeRetweets(tweets);
-        storage.insert(name, tweets);
+        validTweetsArray.addAll(processTweets(tweets));
         String max_id = getMax_id(tweets);
 
         for (int i = 0; i < 14 && !max_id.equals("not_exist"); i++) {
             tweets = twitter.requestTweets(name, max_id);
             System.out.println(("Master:    fetched first " +
                     String.valueOf(200 + i * 100) + " tweets from: " + name));
-            tweets = removeRetweets(tweets);
 
-            storage.insert(name, tweets);
+            validTweetsArray.addAll(processTweets(tweets));
             max_id = getMax_id(tweets);
         }
 
+        System.out.println("Master: total valid tweets for " + name
+                + " count is: " + String.valueOf(validTweetsArray.size()));
+
+        JSONArray validTweets = new JSONArray();
+
+        for (JSONObject tw : validTweetsArray) {
+            validTweets.put(tw);
+        }
+
+        storage.insert(name, new JSONObject().put("tweets", validTweets));
     }
 
-    private JSONObject removeRetweets(JSONObject tweets) {
-        JSONArray statuses = tweets.getJSONArray("statuses");
-        ArrayList<Integer> toRemove = new ArrayList<>();
+    private ArrayList<JSONObject> processTweets(JSONObject response) {
+        ArrayList<JSONObject> validTweets = new ArrayList<>();
 
-        // make remove list
+        JSONArray statuses = response.getJSONArray("statuses");
         for (int i = 0; i < statuses.length(); i++) {
-            JSONObject t = statuses.getJSONObject(i);
-            if (t.getString("text").indexOf("RT") == 0) {
-                toRemove.add(i);
+            JSONObject tweet = statuses.getJSONObject(i);
+            if (validateTweet(tweet)) {
+                validTweets.add(tweet);
             }
         }
 
-        // remove selected
-        int offset = 0;
-        for (Integer i : toRemove) {
-            statuses.remove(i - offset);
-            offset++;
-        }
+        return validTweets;
+    }
 
-        tweets.remove("statuses");
-        tweets.put("statuses", statuses);
-        return tweets;
+    private boolean validateTweet(JSONObject tweet) {
+        return tweet.getString("text").toLowerCase().indexOf("rt") != 0;
     }
 
     private String getMax_id(JSONObject object) {
@@ -147,15 +149,4 @@ public class Master {
         return max_id;
     }
 
-    private void test() {
-        ArrayList<JSONObject> t = storage.getTweets("#SundayMorning");
-        for (JSONObject object : t) {
-            JSONArray array = object.getJSONArray("statuses");
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject o = array.getJSONObject(i);
-                System.out.println("----------------------------------------------------------------------");
-                System.out.println(o.getString("text"));
-            }
-        }
-    }
 }
