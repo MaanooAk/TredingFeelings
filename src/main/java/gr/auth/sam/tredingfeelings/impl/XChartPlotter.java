@@ -1,10 +1,13 @@
 package gr.auth.sam.tredingfeelings.impl;
 
+import java.awt.Font;
 import java.io.IOException;
 import java.util.List;
 
 import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.BitmapEncoder.BitmapFormat;
+import org.knowm.xchart.CategoryChart;
+import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.internal.chartpart.Chart;
 
@@ -21,8 +24,24 @@ public class XChartPlotter implements IPlotter {
     @Override
     public void createBarChart(String title, int width, int height, String xname, List<String> xvalues, String yname,
             List<Integer> yvalues) {
-        // TODO Implement
-        
+
+        final CategoryChart chart = new CategoryChartBuilder()
+                .width(width)
+                .height(height)
+                .title(title)
+                .xAxisTitle(xname)
+                .yAxisTitle(yname)
+                .build();
+
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setHasAnnotations(false);
+
+        chart.getStyler().setAxisTickLabelsFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+        chart.getStyler().setXAxisLabelRotation(60);
+
+        chart.addSeries("1", xvalues, yvalues);
+
+        this.chart = chart;
     }
 
     @Override
