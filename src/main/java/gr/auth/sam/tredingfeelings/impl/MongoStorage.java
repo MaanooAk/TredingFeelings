@@ -1,9 +1,9 @@
 
 package gr.auth.sam.tredingfeelings.impl;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
+import com.mongodb.*;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import gr.auth.sam.tredingfeelings.IStorage;
 import org.bson.Document;
@@ -46,7 +46,8 @@ public class MongoStorage implements IStorage {
 
     @Override
     public void createCollection(String name) {
-        database.createCollection(name);
+//        database.createCollection(name);
+        database.createCollection(name, null);
         System.out.println("MongoStorage: Collection " + name + " created...");
     }
 
@@ -56,16 +57,9 @@ public class MongoStorage implements IStorage {
     }
 
     @Override
-    public ArrayList<JSONObject> getTweets(String collection) {
+    public MongoCursor<Document> getTweets(String collection) {
         MongoCollection<Document> tweets = database.getCollection(collection);
-        ArrayList<Document> documents = tweets.find().into(new ArrayList<>());
-
-        ArrayList<JSONObject> tweetsArray = new ArrayList<>();
-        for (Document document : documents) {
-            tweetsArray.add(new JSONObject(document.toJson()));
-        }
-
-        return tweetsArray;
+        return tweets.find().iterator();
     }
 
     @Override
