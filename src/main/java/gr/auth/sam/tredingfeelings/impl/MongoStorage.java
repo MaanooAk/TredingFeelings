@@ -1,41 +1,46 @@
 
 package gr.auth.sam.tredingfeelings.impl;
 
+import org.bson.Document;
+import org.json.JSONObject;
+
 import com.mongodb.MongoClient;
-import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+
 import gr.auth.sam.tredingfeelings.IStorage;
-import org.bson.Document;
-import org.json.JSONObject;
 
 
 /*
  * TODO doc
  */
 public class MongoStorage implements IStorage {
+
+    private static final String DB_HOST = "localhost";
+    private static final int DB_HOST_PORT = 27017;
+    private static final String DB_NAME = "twitter";
+    
     private MongoDatabase database;
     private MongoClient mongoClient;
-    private MongoCredential credential;
 
     public MongoStorage() {
+
     }
 
     @Override
     public void open() {
+
         try {
-            mongoClient = new MongoClient("localhost", 27017);
+            mongoClient = new MongoClient(DB_HOST, DB_HOST_PORT);
 
-            credential = MongoCredential.createCredential("admin", "twitter",
-                    "twitter_pass".toCharArray());
+            database = mongoClient.getDatabase(DB_NAME);
 
-            database = mongoClient.getDatabase("twitter");
-
-            System.out.println("Connection established...");
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            throw new RuntimeException(e);
         }
+
+        System.out.println("MongoStorage: Connection established");
     }
 
     @Override
@@ -45,9 +50,9 @@ public class MongoStorage implements IStorage {
 
     @Override
     public void createCollection(String name) {
-//        database.createCollection(name);
-        database.createCollection(name, null);
-        System.out.println("MongoStorage: Collection " + name + " created...");
+        database.createCollection(name);
+
+        System.out.println("MongoStorage: Collection " + name + " created");
     }
 
     @Override
@@ -63,6 +68,6 @@ public class MongoStorage implements IStorage {
 
     @Override
     public void drop() {
-        mongoClient.dropDatabase("twitter");
+        mongoClient.dropDatabase(DB_NAME);
     }
 }
