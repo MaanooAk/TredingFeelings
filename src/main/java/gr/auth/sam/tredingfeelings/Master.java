@@ -1,14 +1,12 @@
-
 package gr.auth.sam.tredingfeelings;
 
-import java.util.ArrayList;
-
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.http.auth.AuthenticationException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
+import java.util.ArrayList;
 
 
 /*
@@ -27,7 +25,7 @@ public class Master {
     private final ITwitter twitter;
     private final ISentiment sentiment;
     private final IStorage storage;
-    
+
     private final Stemmer stemmer;
 
     private ArrayList<String> trends;
@@ -36,7 +34,7 @@ public class Master {
         this.twitter = twitter;
         this.sentiment = sentiment;
         this.storage = storage;
-        
+
         stemmer = new Stemmer();
     }
 
@@ -67,7 +65,7 @@ public class Master {
 
         JSONArray trends = jsonObject.getJSONArray("trends");
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < topicsCount; i++) {
             JSONObject object = trends.getJSONObject(i);
             ret.add(object.getString("name"));
         }
@@ -82,41 +80,30 @@ public class Master {
         for (String topic : trends) {
             storeTweets(topic);
         }
-
     }
 
     private void storeTweets(String name) throws UnirestException {
-        System.out.println(("Master: storing tweets from: " + name));
+        System.out.println(("Master:    storing tweets from: " + name));
         storage.createCollection(name);
 
-        JSONObject tweets = twitter.requestTweets(name);
-        System.out.println(("Master:    fetched first 100 tweets from: " + name));
-        processTweets(tweets, name);
-        String max_id = getMax_id(tweets);
+        String max_id;
+        int count = 0;
 
-        for (int i = 0; i < 14 && !max_id.equals("not_exist"); i++) {
-            tweets = twitter.requestTweets(name, max_id);
-            System.out.println(("Master:    fetched first " +
-                    String.valueOf(200 + i * 100) + " tweets from: " + name));
-
-            processTweets(tweets, name);
+        do {
+            JSONObject tweets = twitter.requestTweets(name);
             max_id = getMax_id(tweets);
-        }
 
-    }
-
-    private ArrayList<JSONObject> processTweets(JSONObject response, String collection) {
-        ArrayList<JSONObject> validTweets = new ArrayList<>();
-
-        JSONArray statuses = response.getJSONArray("statuses");
-        for (int i = 0; i < statuses.length(); i++) {
-            JSONObject tweet = statuses.getJSONObject(i);
-            if (validateTweet(tweet)) {
-                storage.insert(collection, tweet);
+            JSONArray statuses = tweets.getJSONArray("statuses");
+            for (int i = 0; i < statuses.length() && count < tweetsCount; i++) {
+                JSONObject tweet = statuses.getJSONObject(i);
+                if (validateTweet(tweet)) {
+                    count++;
+                    storage.insert(name, tweet);
+                }
             }
-        }
 
-        return validTweets;
+            System.out.println(("Master:    tweets gathered from " + name + ": " + count));
+        } while (!max_id.equals("not_exist") && count < tweetsCount);
     }
 
     private boolean validateTweet(JSONObject tweet) {
