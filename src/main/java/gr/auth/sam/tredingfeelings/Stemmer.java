@@ -1,4 +1,3 @@
-
 package gr.auth.sam.tredingfeelings;
 
 import java.io.IOException;
@@ -43,7 +42,13 @@ public class Stemmer {
         for (int i = 0; i < words.size(); i++) {
             String temp = words.get(i).toLowerCase();
             if (isValid(temp)) {
-                finalWords.add(temp);
+                char[] chars = temp.toCharArray();
+                if (chars.length > 1) {
+                    if (!Character.isLetter(chars[chars.length - 1]))
+                        finalWords.add(removeLastChar(temp));
+                    else
+                        finalWords.add(temp);
+                }
             } else {
                 words.remove(i);
                 i--;
@@ -65,12 +70,23 @@ public class Stemmer {
     private boolean isWord(String word) {
         char[] chars = word.toCharArray();
 
-        for (char c : chars) {
-            if (!Character.isLetter(c)) {
+        if (chars.length == 1)
+            return false;
+
+        for (int i = 0; i < chars.length - 1; i++)
+            if (!Character.isLetter(chars[i])) {
                 return false;
             }
-        }
 
         return true;
+    }
+
+    private String removeLastChar(String word) {
+        char[] chars = word.toCharArray();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < chars.length - 1; i++)
+            builder.append(chars[i]);
+
+        return builder.toString();
     }
 }
