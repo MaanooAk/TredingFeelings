@@ -1,7 +1,9 @@
 package gr.auth.sam.tredingfeelings;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mongodb.client.MongoCursor;
 import org.apache.http.auth.AuthenticationException;
+import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,8 +19,8 @@ public class Master {
     // TODO extend
 
     public static final int woeid = 23424977; // United States
-    public static final int topicsCount = 5; // the top 5 trends
-    public static final int tweetsCount = 400; // 1500 tweets for each topic
+    public static final int topicsCount = 1; // the top 5 trends
+    public static final int tweetsCount = 10; // 1500 tweets for each topic
 
     //
 
@@ -49,7 +51,9 @@ public class Master {
             twitter.authenticate();
 
             gatherData();
+            metrics();
 
+            storage.getTweets(trends.get(0));
             storage.close();
         } catch (AuthenticationException | UnirestException e) {
             e.printStackTrace();
@@ -128,4 +132,25 @@ public class Master {
         return max_id;
     }
 
+    public void metrics() {
+        for (String trent : trends) {
+            analizeTrent(trent);
+        }
+    }
+
+    private void analizeTrent(String collection) {
+
+        for (MongoCursor<Document> it = storage.getTweets(collection); it.hasNext(); ) {
+            analizeTweet(new JSONObject(it.next().toJson()));
+        }
+    }
+
+    private void analizeTweet(JSONObject tweet) {
+        String text = tweet.getString("text");
+        ArrayList<String> words = stemmer.normalize(text);
+
+        System.out.println("analizeTweet: "+words.toString());
+        // TODO impl
+        System.out.println("-------------------------------------------");
+    }
 }
