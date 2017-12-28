@@ -36,20 +36,21 @@ public class Stemmer {
         System.out.println("Stemmer: Loaded " + stopwords.size() + " stopwords");
     }
 
-    public String normalize(String text) {
+    public ArrayList<String> normalize(String text) {
         ArrayList<String> words = new ArrayList<>(Arrays.asList(text.split(" ")));
+        ArrayList<String> finalWords = new ArrayList<>();
 
         for (int i = 0; i < words.size(); i++) {
-            if (isValid(words.get(i))) {
-                // TODO what to do with this..?
-                String temp = words.get(i).toLowerCase();
+            String temp = words.get(i).toLowerCase();
+            if (isValid(temp)) {
+                finalWords.add(temp);
             } else {
                 words.remove(i);
                 i--;
             }
         }
 
-        return "";
+        return finalWords;
     }
 
     private boolean isValid(String s) {
@@ -71,6 +72,5 @@ public class Stemmer {
         }
 
         return true;
-
     }
 }
