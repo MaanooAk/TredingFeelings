@@ -51,9 +51,7 @@ public class Master {
             gatherData();
 
             storage.close();
-        } catch (AuthenticationException e) {
-            e.printStackTrace();
-        } catch (UnirestException e) {
+        } catch (AuthenticationException | UnirestException e) {
             e.printStackTrace();
         }
 
