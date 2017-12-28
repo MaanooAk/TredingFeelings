@@ -19,8 +19,8 @@ public class Master {
     // TODO extend
 
     public static final int woeid = 23424977; // United States
-    public static final int topicsCount = 1; // the top 5 trends
-    public static final int tweetsCount = 10; // 1500 tweets for each topic
+    public static final int topicsCount = 5; // the top 5 trends
+    public static final int tweetsCount = 1500; // 1500 tweets for each topic
 
     //
 
@@ -149,7 +149,8 @@ public class Master {
         String text = tweet.getString("text");
         ArrayList<String> words = stemmer.normalize(text);
 
-        System.out.println("analizeTweet: "+words.toString());
+        System.out.println("analizeTweet: " + text);
+        System.out.println("analizedTweet: " + words.toString());
         // TODO impl
         System.out.println("-------------------------------------------");
     }
