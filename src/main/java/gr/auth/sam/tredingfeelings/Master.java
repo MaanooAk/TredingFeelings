@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.apache.http.auth.AuthenticationException;
 import org.bson.Document;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
@@ -102,7 +101,7 @@ public class Master {
 
         do {
             JSONObject tweets = twitter.requestTweets(name); // TODO fix
-            max_id = getMax_id(tweets);
+            max_id = getMaxId(tweets);
 
             JSONArray statuses = tweets.getJSONArray("statuses");
             for (int i = 0; i < statuses.length() && count < tweetsCount; i++) {
@@ -127,24 +126,19 @@ public class Master {
     }
 
     // TODO fix
-    private String getMax_id(JSONObject object) {
-        String max_id = "";
-        JSONObject search_metadata = object.getJSONObject("search_metadata");
-
-        // check if the results contains max_id, if not there are no more results
-        try {
-            String next_results = search_metadata.getString("next_results");
-            if (next_results.contains("max_id")) {
-                String[] firstSplit = next_results.split("max_id=");
-                String s = firstSplit[1];
-                String[] secondSplit = s.split("&");
-                max_id = secondSplit[0];
-            }
-        } catch (JSONException e) {
-            max_id = "not_exist"; // TODO fix
+    private String getMaxId(JSONObject tweets) {
+        
+        if (!tweets.has("search_metadata") || !tweets.getJSONObject("search_metadata").has("next_results")) {
+            return null;
         }
 
-        return max_id;
+        final String line = tweets.getJSONObject("search_metadata").getString("next_results");
+
+        final String key = "max_id=";
+        final int start = line.indexOf(key) + key.length();
+        final int end = line.indexOf("&", start);
+
+        return line.substring(start, end);
     }
 
     public void metrics() {
