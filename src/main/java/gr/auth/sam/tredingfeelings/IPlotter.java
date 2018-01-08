@@ -11,6 +11,9 @@ import java.util.List;
  */
 public interface IPlotter {
 
+    void createSimpleChart(String title, int width, int height, //
+            String xname, List<String> xvalues, String yname, List<Integer> yvalues);
+    
     void createBarChart(String title, int width, int height, //
             String xname, List<String> xvalues, String yname, List<Integer> yvalues);
 
@@ -18,7 +21,7 @@ public interface IPlotter {
             String xname, List<Float> xvalues, String yname, List<Float> yvalues);
 
     void createCumulativeChart(String title, int width, int height, //
-            String xname, List<Integer> xvalues, String yname, List<Integer> yvalues);
+            String xname, List<Integer> xvalues, String yname, List<Float> yvalues);
 
     /**
      * Show the last created chart.

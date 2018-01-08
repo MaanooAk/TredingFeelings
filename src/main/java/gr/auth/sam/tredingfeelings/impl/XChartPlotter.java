@@ -37,6 +37,26 @@ public class XChartPlotter implements IPlotter {
     }
 
     @Override
+    public void createSimpleChart(String title, int width, int height, String xname, List<String> xvalues, String yname,
+            List<Integer> yvalues) {
+
+        final CategoryChart chart = new CategoryChartBuilder()
+                .width(width)
+                .height(height)
+                .title(title)
+                .xAxisTitle(xname)
+                .yAxisTitle(yname)
+                .build();
+
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setHasAnnotations(false);
+
+        chart.addSeries("1", xvalues, yvalues);
+
+        this.chart = chart;
+    }
+    
+    @Override
     public void createBarChart(String title, int width, int height, String xname, List<String> xvalues, String yname,
             List<Integer> yvalues) {
 
@@ -86,7 +106,7 @@ public class XChartPlotter implements IPlotter {
 
     @Override
     public void createCumulativeChart(String title, int width, int height, String xname, List<Integer> xvalues,
-            String yname, List<Integer> yvalues) {
+            String yname, List<Float> yvalues) {
 
         // TODO? do we need this here
         for (int i1 = 1; i1 < yvalues.size(); i1++) {
