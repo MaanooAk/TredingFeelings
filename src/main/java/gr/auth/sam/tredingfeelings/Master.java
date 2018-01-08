@@ -21,7 +21,7 @@ public class Master {
 
     public static final int woeid = 23424977; // United States
     public static final int topicsCount = 2; // the top 5 trends
-    public static final int tweetsCount = 20; // 1500 tweets for each topic
+    public static final int tweetsCount = 15; // 1500 tweets for each topic
 
     //
 

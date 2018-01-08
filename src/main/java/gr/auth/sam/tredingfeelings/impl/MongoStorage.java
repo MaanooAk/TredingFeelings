@@ -2,6 +2,7 @@
 package gr.auth.sam.tredingfeelings.impl;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONObject;
 
 import com.mongodb.MongoClient;
@@ -70,20 +71,15 @@ public class MongoStorage implements IStorage {
     public void insert(String collection, JSONObject object) {
         database.getCollection(collection).insertOne(Document.parse(object.toString()));
     }
-    
+
     @Override
     public void update(String collection, JSONObject oldObject, JSONObject newObject) {
         MongoCollection<Document> c = database.getCollection(collection);
-        
-        Document filter = new Document("_id", oldObject.getJSONObject("_id").getString("$oid"));
-        
-        c.deleteOne(filter);
-        
+
+        Document filter = new Document("_id", new ObjectId(oldObject.getJSONObject("_id").getString("$oid")));
+
         newObject.remove("_id");
-        c.insertOne(Document.parse(newObject.toString()));
-        
-//        newObject.remove("_id");
-//        c.replaceOne(filter, Document.parse(newObject.toString()));
+        c.replaceOne(filter, Document.parse(newObject.toString()));
     }
 
     @Override
