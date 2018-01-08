@@ -22,8 +22,8 @@ public class Master {
     // TODO extend
 
     public static final int woeid = 23424977; // United States
-    public static final int topicsCount = 2; // the top 5 trends
-    public static final int tweetsCount = 200; // 1500 tweets for each topic
+    public static final int topicsCount = 5; // the top 5 trends
+    public static final int tweetsCount = 150; // 1500 tweets for each topic
 
     //
 
@@ -33,7 +33,7 @@ public class Master {
 
     private final Stemmer stemmer;
     private final ArrayList<String> trends;
-    
+
     private ProgressBar progress;
 
     public Master(ITwitter twitter, ISentiment sentiment, IStorage storage) {
@@ -45,23 +45,23 @@ public class Master {
         trends = new ArrayList<>();
     }
 
-    public void start() {
+    public void startGather() {
 
         try {
 
-            storage.drop(); // TODO handle
-
             twitter.authenticate();
-
             gatherData();
-            metrics();
-
-            storage.getTweets(trends.get(0));
 
         } catch (AuthenticationException | UnirestException e) {
             e.printStackTrace();
+            System.exit(0);
         }
 
+    }
+
+    public void startProc() {
+
+        metrics();
     }
 
     private void fillTopTrends(JSONObject jsonObject) {
@@ -79,13 +79,13 @@ public class Master {
         fillTopTrends(twitter.requestTrends(woeid));
 
         progress = ProgressBar.create("Grapher", Master.topicsCount);
-        
+
         for (String topic : trends) {
             progress.incAndShow(topic);
-            
+
             storeTweets(topic);
         }
-        
+
         progress.close();
     }
 
@@ -99,7 +99,7 @@ public class Master {
 
         ProgressBar progress = ProgressBar.create(this.progress, "Gather", tweetsCount);
         progress.setMessage(name);
-        
+
         do {
             JSONObject tweets = twitter.requestTweets(name); // TODO fix
             max_id = getMax_id(tweets);
@@ -112,12 +112,12 @@ public class Master {
                     storage.insert(name, tweet);
                 }
             }
-            
+
             progress.setAndShow(count);
 
             System.out.println(("Master:    tweets gathered from " + name + ": " + count));
         } while (!max_id.equals("not_exist") && count < tweetsCount);
-        
+
         progress.close();
     }
 
@@ -153,10 +153,10 @@ public class Master {
 
         for (String trent : trends) {
             progress.incAndShow(trent);
-            
+
             analizeTrent(trent);
         }
-        
+
         progress.close();
     }
 
@@ -164,10 +164,12 @@ public class Master {
 
         ProgressBar progress = ProgressBar.create(this.progress, "Sentiment sub", tweetsCount);
         progress.setMessage(collection);
-        
+
         for (Document i : storage.getTweets(collection)) {
 
             JSONObject tweet = new JSONObject(i.toJson());
+            if (tweet.has("label")) continue; // has been analyzed
+
             JSONObject etweet = analizeTweet(tweet);
 
             if (etweet == null) {
@@ -176,10 +178,10 @@ public class Master {
             }
 
             storage.update(collection, tweet, etweet);
-            
+
             progress.incAndShow();
         }
-        
+
         progress.close();
     }
 
