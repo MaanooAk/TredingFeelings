@@ -1,6 +1,8 @@
 
 package gr.auth.sam.tredingfeelings;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,8 @@ public class Grapher {
     private static final int CHART_W = 800;
     private static final int CHART_H = 600;
 
+    private static final String OUTPUT_FOLDER = "output";
+
     private final IStorage storage;
     private final IPlotter plotter;
 
@@ -36,6 +40,8 @@ public class Grapher {
 
     public void start() {
 
+        clearOutput();
+
         progress = ProgressBar.create("Grapher", Master.topicsCount * 3);
 
         for (String collection : storage.getCollections()) {
@@ -47,6 +53,25 @@ public class Grapher {
         }
 
         progress.close();
+
+    }
+
+    private void clearOutput() {
+
+        try {
+            File folder = Paths.get(OUTPUT_FOLDER).toFile();
+
+            if (folder.exists()) {
+                for (File i : folder.listFiles())
+                    i.delete();
+            } else {
+                folder.mkdir();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to create output folder");
+            System.exit(1);
+        }
 
     }
 
@@ -99,15 +124,15 @@ public class Grapher {
         list.forEach(i -> fs.add(i.getValue() / sum));
 
         plotter.createBarChart(collection + " | " + field, CHART_W, CHART_H, "word", xs, "", ys);
-        plotter.exportChart("output/" + collection + "." + field + ".freq.png");
+        plotter.exportChart(OUTPUT_FOLDER + "/" + collection + "." + field + ".freq.png");
 
         plotter.createZipfChart(collection + " | " + field, CHART_W, CHART_H, "rank", rs, "frequency", fs);
-        plotter.exportChart("output/" + collection + "." + field + ".zipf.png");
+        plotter.exportChart(OUTPUT_FOLDER + "/" + collection + "." + field + ".zipf.png");
 
     }
 
     private void doUserPlots(String collection) {
-        
+
         progress.incAndShow();
 
         Iterable<Document> tweets = storage.getTweets(collection);
@@ -157,10 +182,10 @@ public class Grapher {
         }
 
         plotter.createSimpleChart(collection + " | Sentiment", CHART_W, CHART_H, "", labelx, "", labely);
-        plotter.exportChart("output/" + collection + ".sentiment.png");
+        plotter.exportChart(OUTPUT_FOLDER + "/" + collection + ".sentiment.png");
 
         plotter.createCumulativeChart(collection + " | followers / friends", CHART_W, CHART_H, "", xs, "ratio", ratios);
-        plotter.exportChart("output/" + collection + ".ratios.png");
+        plotter.exportChart(OUTPUT_FOLDER + "/" + collection + ".ratios.png");
     }
 
     private static int labelToInt(String label) {
