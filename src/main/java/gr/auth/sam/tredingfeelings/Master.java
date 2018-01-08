@@ -1,3 +1,4 @@
+
 package gr.auth.sam.tredingfeelings;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class Master {
 
     public static final int woeid = 23424977; // United States
     public static final int topicsCount = 2; // the top 5 trends
-    public static final int tweetsCount = 150; // 1500 tweets for each topic
+    public static final int tweetsCount = 50; // 1500 tweets for each topic
 
     //
 
@@ -75,7 +76,6 @@ public class Master {
 
         return ret;
     }
-
 
     private void gatherData() throws UnirestException {
         trends = getTopTrends(twitter.requestTrends(woeid));
@@ -144,17 +144,53 @@ public class Master {
 
     private void analizeTrent(String collection) {
 
-        for (MongoCursor<Document> it = storage.getTweets(collection); it.hasNext(); ) {
-            analizeTweet(new JSONObject(it.next().toJson()));
+        for (MongoCursor<Document> it = storage.getTweets(collection); it.hasNext();) {
+
+            JSONObject etweet = analizeTweet(new JSONObject(it.next().toJson()));
+
+            if (etweet == null) {
+                System.out.println("Stopped");
+                System.exit(0);
+            }
         }
     }
 
-    private void analizeTweet(JSONObject tweet) {
+    private JSONObject analizeTweet(JSONObject tweet) {
+
         String text = tweet.getString("text");
 
+        String stemmed = stemmer.stem(text);
+        // TODO also remove trend related words
+
+        JSONObject sent = null;
+        try {
+            sent = sentiment.analyze(stemmed);
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        String label = sent.getString("label");
+        double pos = sent.getJSONObject("probability").getDouble("pos");
+        double neg = sent.getJSONObject("probability").getDouble("neg");
+        double neutral = sent.getJSONObject("probability").getDouble("neutral");
+
+        // construct the extended tweet json object
+
+        JSONObject etweet = new JSONObject(tweet, JSONObject.getNames(tweet));
+        etweet.put("stemmed", stemmed);
+        etweet.put("label", label);
+        etweet.put("pos_prob", pos);
+        etweet.put("neg_prob", neg);
+        etweet.put("neutral_prob", neutral);
+
+        // TODO DEBUG
         System.out.println("original: " + text);
-        System.out.println("stemmed:  " + stemmer.stem(text));
-        // TODO impl
+        System.out.println("stemmed:  " + stemmed);
+        System.out.println("sent:     " + sent);
+        System.out.println(etweet);
         System.out.println("-------------------------------------------");
+
+        return etweet;
     }
 }
