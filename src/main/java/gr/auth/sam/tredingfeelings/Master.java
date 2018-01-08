@@ -151,7 +151,6 @@ public class Master {
 
     private void analizeTweet(JSONObject tweet) {
         String text = tweet.getString("text");
-        ArrayList<String> words = stemmer.normalize(text);
 
         System.out.println("original: " + text);
         System.out.println("stemmed:  " + stemmer.stem(text));
