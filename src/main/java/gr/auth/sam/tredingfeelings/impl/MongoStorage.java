@@ -20,7 +20,7 @@ public class MongoStorage implements IStorage {
     private static final String DB_HOST = "localhost";
     private static final int DB_HOST_PORT = 27017;
     private static final String DB_NAME = "twitter";
-    
+
     private MongoDatabase database;
     private MongoClient mongoClient;
 
@@ -53,6 +53,11 @@ public class MongoStorage implements IStorage {
         database.createCollection(name);
 
         System.out.println("MongoStorage: Collection " + name + " created");
+    }
+
+    @Override
+    public void dropCollection(String name) {
+        database.getCollection(name).drop();
     }
 
     @Override

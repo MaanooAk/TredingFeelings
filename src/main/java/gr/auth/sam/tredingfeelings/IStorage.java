@@ -1,9 +1,10 @@
 
 package gr.auth.sam.tredingfeelings;
 
-import com.mongodb.client.MongoCursor;
 import org.bson.Document;
 import org.json.JSONObject;
+
+import com.mongodb.client.MongoCursor;
 
 
 /*
@@ -16,6 +17,8 @@ public interface IStorage {
     void close();
 
     void createCollection(String name);
+    
+    void dropCollection(String name);
 
     void insert(String collection, JSONObject object);
 

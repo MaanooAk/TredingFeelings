@@ -46,7 +46,7 @@ public class Stemmer {
         StringBuilder sb = new StringBuilder();
 
         for (String word : text.split(" ")) {
-            if (!isStopWord(word)) sb.append(word).append(" ");
+            if (!isStopWord(word) || word.length() < 2) sb.append(word).append(" ");
         }
 
         return sb.toString();
