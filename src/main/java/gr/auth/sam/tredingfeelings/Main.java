@@ -29,9 +29,11 @@ public class Main {
 
         final IStorage storage = new MongoStorage();
 
+        storage.open();
+        
         final ITwitter twitter = new Twitter();
         final ISentiment sentiment = new Sentiment();
-
+        
         Master m = new Master(twitter, sentiment, storage);
         m.start();
 
@@ -39,6 +41,8 @@ public class Main {
         
         Grapher g = new Grapher(storage, plotter);
         g.start();
+        
+        storage.close();
     }
 
 }

@@ -21,7 +21,7 @@ public class Master {
 
     public static final int woeid = 23424977; // United States
     public static final int topicsCount = 2; // the top 5 trends
-    public static final int tweetsCount = 50; // 1500 tweets for each topic
+    public static final int tweetsCount = 20; // 1500 tweets for each topic
 
     //
 
@@ -44,7 +44,6 @@ public class Master {
     public void start() {
 
         try {
-            storage.open();
 
             storage.drop(); // TODO handle
 
@@ -54,7 +53,7 @@ public class Master {
             metrics();
 
             storage.getTweets(trends.get(0));
-            storage.close();
+
         } catch (AuthenticationException | UnirestException e) {
             e.printStackTrace();
         }
@@ -84,7 +83,6 @@ public class Master {
     private void storeTweets(String name) throws UnirestException {
         System.out.println(("Master:    storing tweets from: " + name));
         storage.createCollection(name);
-        storage.createCollection(name + "_");
 
         String max_id;
         int count = 0;
@@ -133,7 +131,7 @@ public class Master {
     }
 
     public void metrics() {
-        
+
         for (String trent : trends) {
             analizeTrent(trent);
         }
@@ -143,14 +141,15 @@ public class Master {
 
         for (Document i : storage.getTweets(collection)) {
 
-            JSONObject etweet = analizeTweet(new JSONObject(i.toJson()));
+            JSONObject tweet = new JSONObject(i.toJson());
+            JSONObject etweet = analizeTweet(tweet);
 
             if (etweet == null) {
                 System.out.println("Stopped");
                 System.exit(0);
             }
 
-            storage.insert(collection + "_", etweet);
+            storage.update(collection, tweet, etweet);
         }
     }
 

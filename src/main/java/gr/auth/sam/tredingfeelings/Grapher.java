@@ -3,6 +3,7 @@ package gr.auth.sam.tredingfeelings;
 
 import org.bson.Document;
 
+
 public class Grapher {
 
     private IStorage storage;
@@ -17,16 +18,22 @@ public class Grapher {
     public void start() {
 
         for (String collection : storage.getCollections()) {
-            if (!collection.endsWith("_")) continue;
-            
-            work(storage.getTweets(collection));    
+
+            System.out.println("Grapher: work " + collection);
+            work(storage.getTweets(collection));
         }
-        
+
     }
 
     private void work(Iterable<Document> tweets) {
-        
-        
+
+        for (Document d : tweets) {
+
+            System.out.println("@");
+            System.out.println(d.get("_id"));
+            System.out.println(d.toJson().contains("stemmed"));
+            
+        }
         
     }
 

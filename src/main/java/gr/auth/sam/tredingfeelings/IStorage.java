@@ -22,6 +22,8 @@ public interface IStorage {
 
     void insert(String collection, JSONObject object);
 
+    void update(String collection, JSONObject oldObject, JSONObject newObject);
+    
     Iterable<Document> getTweets(String collection);
 
     void drop();
