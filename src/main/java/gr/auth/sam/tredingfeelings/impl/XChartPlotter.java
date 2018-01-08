@@ -60,8 +60,8 @@ public class XChartPlotter implements IPlotter {
     }
 
     @Override
-    public void createZipfChart(String title, int width, int height, String xname, List<Integer> xvalues, String yname,
-            List<Integer> yvalues) {
+    public void createZipfChart(String title, int width, int height, String xname, List<Float> xvalues, String yname,
+            List<Float> yvalues) {
 
         final XYChart chart = new XYChartBuilder()
                 .width(width)
