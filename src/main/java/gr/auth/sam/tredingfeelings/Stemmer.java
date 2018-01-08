@@ -36,6 +36,9 @@ public class Stemmer {
     }
 
     public ArrayList<String> normalize(String text) {
+
+        // TODO remove non character
+
         ArrayList<String> words = new ArrayList<>(Arrays.asList(text.split(" ")));
         ArrayList<String> finalWords = new ArrayList<>();
 
@@ -67,16 +70,16 @@ public class Stemmer {
         return stopwords.contains(s);
     }
 
+    // TODO revisit
     private boolean isWord(String word) {
         char[] chars = word.toCharArray();
 
         if (chars.length == 1)
             return false;
 
-        for (int i = 0; i < chars.length - 1; i++)
-            if (!Character.isLetter(chars[i])) {
-                return false;
-            }
+        for (int i = 0; i < chars.length - 1; i++) {
+            if (!Character.isLetter(chars[i])) return false;
+        }
 
         return true;
     }

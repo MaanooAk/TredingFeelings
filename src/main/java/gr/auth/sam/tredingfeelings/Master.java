@@ -19,8 +19,8 @@ public class Master {
     // TODO extend
 
     public static final int woeid = 23424977; // United States
-    public static final int topicsCount = 5; // the top 5 trends
-    public static final int tweetsCount = 1500; // 1500 tweets for each topic
+    public static final int topicsCount = 2; // the top 5 trends
+    public static final int tweetsCount = 100; // 1500 tweets for each topic
 
     //
 
@@ -84,6 +84,7 @@ public class Master {
         }
     }
 
+    // TODO split
     private void storeTweets(String name) throws UnirestException {
         System.out.println(("Master:    storing tweets from: " + name));
         storage.createCollection(name);
@@ -92,7 +93,7 @@ public class Master {
         int count = 0;
 
         do {
-            JSONObject tweets = twitter.requestTweets(name);
+            JSONObject tweets = twitter.requestTweets(name); // TODO fix
             max_id = getMax_id(tweets);
 
             JSONArray statuses = tweets.getJSONArray("statuses");
@@ -109,9 +110,11 @@ public class Master {
     }
 
     private boolean validateTweet(JSONObject tweet) {
+        // TODO move to twitter class
         return tweet.getString("text").toLowerCase().indexOf("rt") != 0;
     }
 
+    // TODO fix
     private String getMax_id(JSONObject object) {
         String max_id = "";
         JSONObject search_metadata = object.getJSONObject("search_metadata");
@@ -126,7 +129,7 @@ public class Master {
                 max_id = secondSplit[0];
             }
         } catch (JSONException e) {
-            max_id = "not_exist";
+            max_id = "not_exist"; // TODO fix
         }
 
         return max_id;
