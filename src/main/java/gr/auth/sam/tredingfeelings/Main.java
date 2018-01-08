@@ -21,14 +21,18 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        boolean clear = true;
-        boolean gather = true;
-        boolean proc = true;
+        boolean clear = false;
+        boolean gather = false;
+        boolean proc = false;
         boolean graph = true;
+
+        Params params = new Params();
 
         //
 
         setup();
+
+        Stemmer stemmer = new Stemmer();
 
         final IStorage storage = new MongoStorage();
         storage.open();
@@ -37,25 +41,22 @@ public class Main {
             storage.drop();
         }
 
-        if (gather || proc) {
+        if (gather && clear) {
             final ITwitter twitter = new Twitter();
+
+            new Master(params, storage, twitter).start();
+        }
+
+        if (proc) {
             final ISentiment sentiment = new Sentiment();
 
-            Master m = new Master(twitter, sentiment, storage);
-
-            if (gather && clear) {
-                m.startGather();
-            }
-
-            if (proc) {
-                m.startProc();
-            }
+            new Analyzer(params, storage, sentiment, stemmer).start();
         }
 
         if (graph) {
             final IPlotter plotter = new XChartPlotter();
 
-            new Grapher(storage, plotter).start();
+            new Grapher(params, storage, plotter).start();
         }
 
         storage.close();

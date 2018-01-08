@@ -15,7 +15,7 @@ import org.bson.Document;
 import gr.auth.sam.tredingfeelings.util.ProgressBar;
 
 
-public class Grapher {
+public class Grapher extends Operator {
 
     private static final int TOP_WORDS = 50;
 
@@ -27,22 +27,17 @@ public class Grapher {
     private final IStorage storage;
     private final IPlotter plotter;
 
-    private final HashMap<String, Integer> map;
-
-    private ProgressBar progress;
-
-    public Grapher(IStorage storage, IPlotter plotter) {
+    public Grapher(Params params, IStorage storage, IPlotter plotter) {
+        super(params);
         this.storage = storage;
         this.plotter = plotter;
-
-        map = new HashMap<>();
     }
 
     public void start() {
 
         clearOutput();
 
-        progress = ProgressBar.create("Grapher", Master.topicsCount * 3);
+        progress = ProgressBar.create("Grapher", params.topicsCount * 3);
 
         for (String collection : storage.getCollections()) {
             progress.setMessage("Trend: " + collection);
@@ -89,7 +84,7 @@ public class Grapher {
 
         Iterable<Document> tweets = storage.getTweets(collection);
 
-        HashMap<String, Integer> counts = map;
+        HashMap<String, Integer> counts = new HashMap<>();
         counts.clear();
 
         for (Document t : tweets) {

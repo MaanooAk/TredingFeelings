@@ -4,7 +4,6 @@ package gr.auth.sam.tredingfeelings;
 import java.util.ArrayList;
 
 import org.apache.http.auth.AuthenticationException;
-import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,35 +15,23 @@ import gr.auth.sam.tredingfeelings.util.ProgressBar;
 /*
  * TODO doc
  */
-public class Master {
+public class Master extends Operator {
 
-    // TODO extend
-
-    public static final int woeid = 23424977; // United States
-    public static final int topicsCount = 5; // the top 5 trends
-    public static final int tweetsCount = 150; // 1500 tweets for each topic
-
-    //
-
-    private final ITwitter twitter;
-    private final ISentiment sentiment;
     private final IStorage storage;
+    private final ITwitter twitter;
 
-    private final Stemmer stemmer;
     private final ArrayList<String> trends;
 
-    private ProgressBar progress;
-
-    public Master(ITwitter twitter, ISentiment sentiment, IStorage storage) {
-        this.twitter = twitter;
-        this.sentiment = sentiment;
+    public Master(Params params, IStorage storage, ITwitter twitter) {
+        super(params);
         this.storage = storage;
+        this.twitter = twitter;
 
-        stemmer = new Stemmer();
-        trends = new ArrayList<>();
+        trends = new ArrayList<>(params.topicsCount);
     }
 
-    public void startGather() {
+    @Override
+    public void start() {
 
         try {
 
@@ -58,16 +45,11 @@ public class Master {
 
     }
 
-    public void startProc() {
-
-        metrics();
-    }
-
     private void fillTopTrends(JSONObject jsonObject) {
 
         JSONArray trends = jsonObject.getJSONArray("trends");
 
-        for (int i = 0; i < topicsCount; i++) {
+        for (int i = 0; i < params.topicsCount; i++) {
             JSONObject object = trends.getJSONObject(i);
             this.trends.add(object.getString("name"));
         }
@@ -75,9 +57,9 @@ public class Master {
     }
 
     private void gatherData() throws UnirestException {
-        fillTopTrends(twitter.requestTrends(woeid));
+        fillTopTrends(twitter.requestTrends(params.woeid));
 
-        progress = ProgressBar.create("Grapher", Master.topicsCount);
+        progress = ProgressBar.create("Grapher", params.topicsCount);
 
         for (String topic : trends) {
             progress.incAndShow(topic);
@@ -91,7 +73,7 @@ public class Master {
     // TODO split
     private void storeTweets(String name) throws UnirestException {
 
-        ProgressBar progress = ProgressBar.create(this.progress, "Gather", tweetsCount);
+        ProgressBar progress = ProgressBar.create(this.progress, "Gather", params.tweetsCount);
         progress.setMessage(name);
 
         storage.createCollection(name);
@@ -100,10 +82,10 @@ public class Master {
 
         JSONObject tweets = twitter.requestTweets(name);
 
-        while (count < tweetsCount) {
+        while (count < params.tweetsCount) {
 
             JSONArray statuses = tweets.getJSONArray("statuses");
-            for (int i = 0; i < statuses.length() && count < tweetsCount; i++) {
+            for (int i = 0; i < statuses.length() && count < params.tweetsCount; i++) {
                 JSONObject tweet = statuses.getJSONObject(i);
                 if (validateTweet(tweet)) {
                     count++;
@@ -111,7 +93,7 @@ public class Master {
                 }
             }
 
-            progress.setAndShow(count, tweetsCount - count + " left");
+            progress.setAndShow(count, params.tweetsCount - count + " left");
 
             String max_id = getMaxId(tweets);
             if (max_id == null) break;
@@ -143,80 +125,4 @@ public class Master {
         return line.substring(start, end);
     }
 
-    public void metrics() {
-
-        progress = ProgressBar.create("Sentiment", Master.topicsCount);
-
-        for (String trent : storage.getCollections()) {
-            progress.incAndShow(trent);
-
-            analizeTrent(trent);
-        }
-
-        progress.close();
-    }
-
-    private void analizeTrent(String collection) {
-
-        ProgressBar progress = ProgressBar.create(this.progress, "Sentiment sub", tweetsCount);
-        progress.setMessage(collection);
-
-        for (Document i : storage.getTweets(collection)) {
-            progress.incAndShow();
-
-            JSONObject tweet = new JSONObject(i.toJson());
-            if (tweet.has("stemmed")) continue; // has been analyzed
-
-            JSONObject etweet = analizeTweet(tweet);
-
-            if (etweet == null) {
-                System.out.println("Stopped");
-                System.exit(0);
-            }
-
-            storage.update(collection, tweet, etweet);
-        }
-
-        progress.close();
-    }
-
-    private JSONObject analizeTweet(JSONObject tweet) {
-
-        String text = tweet.getString("text");
-
-        String stemmed = stemmer.stem(text);
-        // TODO also remove trend related words
-
-        JSONObject sent = null;
-        try {
-            sent = sentiment.analyze(stemmed);
-        } catch (UnirestException e) {
-            e.printStackTrace();
-            System.out.println("Sentiment failed");
-            System.exit(1);
-        }
-
-        String label = sent.getString("label");
-        double pos = sent.getJSONObject("probability").getDouble("pos");
-        double neg = sent.getJSONObject("probability").getDouble("neg");
-        double neutral = sent.getJSONObject("probability").getDouble("neutral");
-
-        // construct the extended tweet json object
-
-        JSONObject etweet = new JSONObject(tweet, JSONObject.getNames(tweet));
-        etweet.put("stemmed", stemmed);
-        etweet.put("label", label);
-        etweet.put("pos_prob", pos);
-        etweet.put("neg_prob", neg);
-        etweet.put("neutral_prob", neutral);
-
-        // TODO DEBUG
-//        System.out.println("original: " + text);
-//        System.out.println("stemmed:  " + stemmed);
-//        System.out.println("sent:     " + sent);
-//        System.out.println(etweet);
-//        System.out.println("-------------------------------------------");
-
-        return etweet;
-    }
 }
