@@ -17,8 +17,10 @@ public interface IStorage {
     void close();
 
     void createCollection(String name);
-    
+
     void dropCollection(String name);
+
+    Iterable<String> getCollections();
 
     void insert(String collection, JSONObject object);
 

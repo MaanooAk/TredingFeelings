@@ -61,6 +61,11 @@ public class MongoStorage implements IStorage {
     }
 
     @Override
+    public Iterable<String> getCollections() {
+        return database.listCollectionNames();
+    }
+
+    @Override
     public void insert(String collection, JSONObject object) {
         database.getCollection(collection).insertOne(Document.parse(object.toString()));
     }

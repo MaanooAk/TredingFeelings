@@ -11,6 +11,7 @@ import com.mashape.unirest.http.Unirest;
 import gr.auth.sam.tredingfeelings.impl.MongoStorage;
 import gr.auth.sam.tredingfeelings.impl.Sentiment;
 import gr.auth.sam.tredingfeelings.impl.Twitter;
+import gr.auth.sam.tredingfeelings.impl.XChartPlotter;
 
 
 /*
@@ -26,13 +27,18 @@ public class Main {
         // suppress mongodb's logger
         Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
 
+        final IStorage storage = new MongoStorage();
+
         final ITwitter twitter = new Twitter();
         final ISentiment sentiment = new Sentiment();
-        final IStorage storage = new MongoStorage();
 
         Master m = new Master(twitter, sentiment, storage);
         m.start();
 
+        final IPlotter plotter = new XChartPlotter();
+        
+        Grapher g = new Grapher(storage, plotter);
+        g.start();
     }
 
 }
