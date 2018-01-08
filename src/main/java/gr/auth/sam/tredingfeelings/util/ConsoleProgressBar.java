@@ -15,4 +15,7 @@ public class ConsoleProgressBar extends ProgressBar {
         System.out.println(current + " / " + max); // placeholder
     }
 
+    @Override
+    public void close() {}
+
 }
