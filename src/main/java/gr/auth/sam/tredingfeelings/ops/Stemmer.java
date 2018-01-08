@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.ops;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

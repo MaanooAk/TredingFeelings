@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings.impl;
+package gr.auth.sam.tredingfeelings.serv.impl;
 
 import java.io.IOException;
 import java.util.function.UnaryOperator;
@@ -13,7 +13,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequest;
 
-import gr.auth.sam.tredingfeelings.ITwitter;
+import gr.auth.sam.tredingfeelings.serv.ITwitter;
 
 
 /*

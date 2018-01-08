@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.serv;
 
 import java.util.List;
 

@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings.impl;
+package gr.auth.sam.tredingfeelings.serv.impl;
 
 import org.json.JSONObject;
 
@@ -8,7 +8,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import gr.auth.sam.tredingfeelings.ISentiment;
+import gr.auth.sam.tredingfeelings.serv.ISentiment;
 
 
 /**

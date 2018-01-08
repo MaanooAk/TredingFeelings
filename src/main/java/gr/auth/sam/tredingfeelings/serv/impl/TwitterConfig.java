@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings.impl;
+package gr.auth.sam.tredingfeelings.serv.impl;
 
 import java.io.IOException;
 import java.nio.file.Files;

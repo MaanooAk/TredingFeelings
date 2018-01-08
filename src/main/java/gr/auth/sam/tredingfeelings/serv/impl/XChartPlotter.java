@@ -1,4 +1,4 @@
-package gr.auth.sam.tredingfeelings.impl;
+package gr.auth.sam.tredingfeelings.serv.impl;
 
 import java.awt.Font;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.internal.chartpart.Chart;
 
-import gr.auth.sam.tredingfeelings.IPlotter;
+import gr.auth.sam.tredingfeelings.serv.IPlotter;
 
 /**
  * Implementation of IPlotter using the XChart library.

@@ -8,10 +8,18 @@ import org.apache.http.impl.client.HttpClients;
 
 import com.mashape.unirest.http.Unirest;
 
-import gr.auth.sam.tredingfeelings.impl.MongoStorage;
-import gr.auth.sam.tredingfeelings.impl.Sentiment;
-import gr.auth.sam.tredingfeelings.impl.Twitter;
-import gr.auth.sam.tredingfeelings.impl.XChartPlotter;
+import gr.auth.sam.tredingfeelings.ops.Analyzer;
+import gr.auth.sam.tredingfeelings.ops.Gatherer;
+import gr.auth.sam.tredingfeelings.ops.Grapher;
+import gr.auth.sam.tredingfeelings.ops.Stemmer;
+import gr.auth.sam.tredingfeelings.serv.IPlotter;
+import gr.auth.sam.tredingfeelings.serv.ISentiment;
+import gr.auth.sam.tredingfeelings.serv.IStorage;
+import gr.auth.sam.tredingfeelings.serv.ITwitter;
+import gr.auth.sam.tredingfeelings.serv.impl.MongoStorage;
+import gr.auth.sam.tredingfeelings.serv.impl.Sentiment;
+import gr.auth.sam.tredingfeelings.serv.impl.Twitter;
+import gr.auth.sam.tredingfeelings.serv.impl.XChartPlotter;
 
 
 /*
@@ -44,7 +52,7 @@ public class Main {
         if (gather && clear) {
             final ITwitter twitter = new Twitter();
 
-            new Master(params, storage, twitter).start();
+            new Gatherer(params, storage, twitter).start();
         }
 
         if (proc) {

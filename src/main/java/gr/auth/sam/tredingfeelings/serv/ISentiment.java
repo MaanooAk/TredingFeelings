@@ -1,4 +1,4 @@
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.serv;
 
 import org.json.JSONObject;
 

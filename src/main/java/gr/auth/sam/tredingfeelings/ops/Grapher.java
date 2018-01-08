@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.ops;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 
 import org.bson.Document;
 
+import gr.auth.sam.tredingfeelings.Operator;
+import gr.auth.sam.tredingfeelings.Params;
+import gr.auth.sam.tredingfeelings.serv.IPlotter;
+import gr.auth.sam.tredingfeelings.serv.IStorage;
 import gr.auth.sam.tredingfeelings.util.ProgressBar;
 
 

@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.serv;
 
 import org.apache.http.auth.AuthenticationException;
 import org.json.JSONObject;

@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.ops;
 
 import java.util.ArrayList;
 
@@ -9,20 +9,24 @@ import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import gr.auth.sam.tredingfeelings.Operator;
+import gr.auth.sam.tredingfeelings.Params;
+import gr.auth.sam.tredingfeelings.serv.IStorage;
+import gr.auth.sam.tredingfeelings.serv.ITwitter;
 import gr.auth.sam.tredingfeelings.util.ProgressBar;
 
 
 /*
  * TODO doc
  */
-public class Master extends Operator {
+public class Gatherer extends Operator {
 
     private final IStorage storage;
     private final ITwitter twitter;
 
     private final ArrayList<String> trends;
 
-    public Master(Params params, IStorage storage, ITwitter twitter) {
+    public Gatherer(Params params, IStorage storage, ITwitter twitter) {
         super(params);
         this.storage = storage;
         this.twitter = twitter;

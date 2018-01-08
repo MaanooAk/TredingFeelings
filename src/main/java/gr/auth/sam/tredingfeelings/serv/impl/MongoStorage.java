@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings.impl;
+package gr.auth.sam.tredingfeelings.serv.impl;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -11,7 +11,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
 
-import gr.auth.sam.tredingfeelings.IStorage;
+import gr.auth.sam.tredingfeelings.serv.IStorage;
 
 
 /*

@@ -1,5 +1,5 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.serv;
 
 import org.bson.Document;
 import org.json.JSONObject;

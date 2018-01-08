@@ -1,11 +1,15 @@
 
-package gr.auth.sam.tredingfeelings;
+package gr.auth.sam.tredingfeelings.ops;
 
 import org.bson.Document;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import gr.auth.sam.tredingfeelings.Operator;
+import gr.auth.sam.tredingfeelings.Params;
+import gr.auth.sam.tredingfeelings.serv.ISentiment;
+import gr.auth.sam.tredingfeelings.serv.IStorage;
 import gr.auth.sam.tredingfeelings.util.ProgressBar;
 
 
