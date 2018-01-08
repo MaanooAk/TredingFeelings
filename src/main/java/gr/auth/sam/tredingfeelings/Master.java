@@ -90,18 +90,17 @@ public class Master {
 
     // TODO split
     private void storeTweets(String name) throws UnirestException {
-        System.out.println(("Master:    storing tweets from: " + name));
-        storage.createCollection(name);
-
-        String max_id;
-        int count = 0;
 
         ProgressBar progress = ProgressBar.create(this.progress, "Gather", tweetsCount);
         progress.setMessage(name);
 
-        do {
-            JSONObject tweets = twitter.requestTweets(name); // TODO fix
-            max_id = getMaxId(tweets);
+        storage.createCollection(name);
+
+        int count = 0;
+
+        JSONObject tweets = twitter.requestTweets(name);
+
+        while (count < tweetsCount) {
 
             JSONArray statuses = tweets.getJSONArray("statuses");
             for (int i = 0; i < statuses.length() && count < tweetsCount; i++) {
@@ -112,10 +111,13 @@ public class Master {
                 }
             }
 
-            progress.setAndShow(count);
+            progress.setAndShow(count, tweetsCount - count + " left");
 
-            System.out.println(("Master:    tweets gathered from " + name + ": " + count));
-        } while (!max_id.equals("not_exist") && count < tweetsCount);
+            String max_id = getMaxId(tweets);
+            if (max_id == null) break;
+
+            tweets = twitter.requestTweets(name, max_id);
+        }
 
         progress.close();
     }
@@ -127,7 +129,7 @@ public class Master {
 
     // TODO fix
     private String getMaxId(JSONObject tweets) {
-        
+
         if (!tweets.has("search_metadata") || !tweets.getJSONObject("search_metadata").has("next_results")) {
             return null;
         }
@@ -145,7 +147,7 @@ public class Master {
 
         progress = ProgressBar.create("Sentiment", Master.topicsCount);
 
-        for (String trent : trends) {
+        for (String trent : storage.getCollections()) {
             progress.incAndShow(trent);
 
             analizeTrent(trent);
@@ -160,9 +162,10 @@ public class Master {
         progress.setMessage(collection);
 
         for (Document i : storage.getTweets(collection)) {
+            progress.incAndShow();
 
             JSONObject tweet = new JSONObject(i.toJson());
-            if (tweet.has("label")) continue; // has been analyzed
+            if (tweet.has("stemmed")) continue; // has been analyzed
 
             JSONObject etweet = analizeTweet(tweet);
 
@@ -172,8 +175,6 @@ public class Master {
             }
 
             storage.update(collection, tweet, etweet);
-
-            progress.incAndShow();
         }
 
         progress.close();
@@ -191,7 +192,8 @@ public class Master {
             sent = sentiment.analyze(stemmed);
         } catch (UnirestException e) {
             e.printStackTrace();
-            return null;
+            System.out.println("Sentiment failed");
+            System.exit(1);
         }
 
         String label = sent.getString("label");
