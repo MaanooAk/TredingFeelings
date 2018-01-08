@@ -9,6 +9,7 @@ import org.apache.http.impl.client.HttpClients;
 import com.mashape.unirest.http.Unirest;
 
 import gr.auth.sam.tredingfeelings.ops.Analyzer;
+import gr.auth.sam.tredingfeelings.ops.AnalyzerMulti;
 import gr.auth.sam.tredingfeelings.ops.Gatherer;
 import gr.auth.sam.tredingfeelings.ops.Grapher;
 import gr.auth.sam.tredingfeelings.ops.Stemmer;
@@ -50,7 +51,11 @@ public class Main {
         if (p.proc) {
             final ISentiment sentiment = new Sentiment();
 
-            new Analyzer(p, storage, sentiment, stemmer).start();
+            if (p.multithreaded) {
+                new AnalyzerMulti(p, storage, sentiment, stemmer).start();
+            } else {
+                new Analyzer(p, storage, sentiment, stemmer).start();
+            }
         }
 
         if (p.graph) {

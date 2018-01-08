@@ -1,6 +1,11 @@
 
 package gr.auth.sam.tredingfeelings.ops;
 
+import java.util.Iterator;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import org.bson.Document;
 import org.json.JSONObject;
 
@@ -13,13 +18,15 @@ import gr.auth.sam.tredingfeelings.serv.IStorage;
 import gr.auth.sam.tredingfeelings.util.ProgressBar;
 
 
-public class Analyzer extends Operator {
+public class AnalyzerMulti extends Operator {
 
     private final IStorage storage;
     private final ISentiment sentiment;
     private final Stemmer stemmer;
 
-    public Analyzer(Params params, IStorage storage, ISentiment sentiment, Stemmer stemmer) {
+    private ProgressBar sprogress;
+
+    public AnalyzerMulti(Params params, IStorage storage, ISentiment sentiment, Stemmer stemmer) {
         super(params);
         this.storage = storage;
         this.sentiment = sentiment;
@@ -41,14 +48,58 @@ public class Analyzer extends Operator {
 
     private void analizeTrent(String collection) {
 
-        ProgressBar progress = ProgressBar.create(this.progress, "Sentiment sub", params.tweetsCount);
-        progress.setMessage(collection);
+        final ThreadPoolExecutor tpool = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(40));
+        tpool.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
-        for (Document i : storage.getTweets(collection)) {
-            progress.incAndShow();
+        sprogress = ProgressBar.create(this.progress, "Sentiment sub", params.tweetsCount);
+        sprogress.setMessage(collection);
+
+        Iterator<Document> iterator = storage.getTweets(collection).iterator();
+
+        while (true) {
+            Document i;
+
+            synchronized (storage) {
+                if (!iterator.hasNext()) break;
+                i = iterator.next();
+            }
 
             JSONObject tweet = new JSONObject(i.toJson());
-            if (tweet.has("stemmed")) continue; // has been analyzed
+            if (tweet.has("stemmed")) {
+                synchronized (sprogress) {
+                    sprogress.incAndShow();
+                }
+                continue; // has been analyzed
+            }
+
+            tpool.submit(new AnalizeTweetCall(collection, tweet));
+
+        }
+
+        System.out.println("Waitting responses");
+
+        tpool.shutdown();
+
+        try {
+            tpool.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {}
+
+        sprogress.close();
+    }
+
+    private final class AnalizeTweetCall implements Runnable {
+
+        private String collection;
+        private final JSONObject tweet;
+
+        public AnalizeTweetCall(String collection, JSONObject tweet) {
+            this.collection = collection;
+            this.tweet = tweet;
+        }
+
+        @Override
+        public void run() {
 
             JSONObject etweet = analizeTweet(tweet);
 
@@ -57,10 +108,15 @@ public class Analyzer extends Operator {
                 System.exit(0);
             }
 
-            storage.update(collection, tweet, etweet);
+            synchronized (storage) {
+                storage.update(collection, tweet, etweet);
+            }
+
+            synchronized (sprogress) {
+                sprogress.incAndShow();
+            }
         }
 
-        progress.close();
     }
 
     private JSONObject analizeTweet(JSONObject tweet) {
