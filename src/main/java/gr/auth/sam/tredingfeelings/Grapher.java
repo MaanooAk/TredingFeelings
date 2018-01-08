@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import org.bson.Document;
 
+import gr.auth.sam.tredingfeelings.util.ProgressBar;
+
 
 public class Grapher {
 
@@ -19,6 +21,8 @@ public class Grapher {
 
     private final HashMap<String, Integer> map;
 
+    private ProgressBar progress;
+
     public Grapher(IStorage storage, IPlotter plotter) {
         this.storage = storage;
         this.plotter = plotter;
@@ -28,12 +32,18 @@ public class Grapher {
 
     public void start() {
 
+        progress = ProgressBar.create("Grapher", Master.topicsCount);
+
         for (String collection : storage.getCollections()) {
 
             System.out.println("Grapher: work " + collection);
             work(collection);
+
+            progress.setMessage("Trend: " + collection);
+            progress.incAndShow();
         }
 
+        progress.close();
     }
 
     private void work(String collection) {

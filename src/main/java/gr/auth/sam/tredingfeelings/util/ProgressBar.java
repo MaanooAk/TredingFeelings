@@ -22,7 +22,7 @@ public abstract class ProgressBar {
     public ProgressBar(String title, int max) {
         this.title = title;
         this.max = max;
-        
+
         current = 0;
         message = "";
     }
@@ -36,7 +36,7 @@ public abstract class ProgressBar {
         current += 1;
         show();
     }
-    
+
     public final void setMessage(String message) {
         this.message = message;
     }
@@ -45,7 +45,7 @@ public abstract class ProgressBar {
      * Show the progress based on the current, max and message fields
      */
     public abstract void show();
-    
+
     public abstract void close();
 
 }
