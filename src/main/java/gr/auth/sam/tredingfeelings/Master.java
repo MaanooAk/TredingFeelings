@@ -30,8 +30,7 @@ public class Master {
     private final IStorage storage;
 
     private final Stemmer stemmer;
-
-    private ArrayList<String> trends;
+    private final ArrayList<String> trends;
 
     public Master(ITwitter twitter, ISentiment sentiment, IStorage storage) {
         this.twitter = twitter;
@@ -39,6 +38,7 @@ public class Master {
         this.storage = storage;
 
         stemmer = new Stemmer();
+        trends = new ArrayList<>();
     }
 
     public void start() {
@@ -61,22 +61,19 @@ public class Master {
 
     }
 
-    private ArrayList<String> getTopTrends(JSONObject jsonObject) {
-
-        ArrayList<String> ret = new ArrayList<>();
+    private void fillTopTrends(JSONObject jsonObject) {
 
         JSONArray trends = jsonObject.getJSONArray("trends");
 
         for (int i = 0; i < topicsCount; i++) {
             JSONObject object = trends.getJSONObject(i);
-            ret.add(object.getString("name"));
+            this.trends.add(object.getString("name"));
         }
 
-        return ret;
     }
 
     private void gatherData() throws UnirestException {
-        trends = getTopTrends(twitter.requestTrends(woeid));
+        fillTopTrends(twitter.requestTrends(woeid));
 
         for (String topic : trends) {
             storeTweets(topic);
@@ -136,6 +133,7 @@ public class Master {
     }
 
     public void metrics() {
+        
         for (String trent : trends) {
             analizeTrent(trent);
         }
