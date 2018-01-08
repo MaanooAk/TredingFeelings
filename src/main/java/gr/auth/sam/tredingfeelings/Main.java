@@ -28,43 +28,35 @@ import gr.auth.sam.tredingfeelings.serv.impl.XChartPlotter;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-
-        boolean clear = false;
-        boolean gather = false;
-        boolean proc = false;
-        boolean graph = true;
-
-        Params params = new Params();
-
-        //
-
         setup();
 
-        Stemmer stemmer = new Stemmer();
+        Params p = new Params(args);
+
+        final Stemmer stemmer = new Stemmer();
 
         final IStorage storage = new MongoStorage();
         storage.open();
 
-        if (clear) {
+        if (p.clear) {
             storage.drop();
         }
 
-        if (gather && clear) {
+        if (p.gather && p.clear) {
             final ITwitter twitter = new Twitter();
 
-            new Gatherer(params, storage, twitter).start();
+            new Gatherer(p, storage, twitter).start();
         }
 
-        if (proc) {
+        if (p.proc) {
             final ISentiment sentiment = new Sentiment();
 
-            new Analyzer(params, storage, sentiment, stemmer).start();
+            new Analyzer(p, storage, sentiment, stemmer).start();
         }
 
-        if (graph) {
+        if (p.graph) {
             final IPlotter plotter = new XChartPlotter();
 
-            new Grapher(params, storage, plotter).start();
+            new Grapher(p, storage, plotter).start();
         }
 
         storage.close();
