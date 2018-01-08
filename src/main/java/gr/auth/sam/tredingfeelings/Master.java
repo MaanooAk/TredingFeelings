@@ -1,14 +1,15 @@
 package gr.auth.sam.tredingfeelings;
 
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mongodb.client.MongoCursor;
+import java.util.ArrayList;
+
 import org.apache.http.auth.AuthenticationException;
 import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mongodb.client.MongoCursor;
 
 
 /*
@@ -20,7 +21,7 @@ public class Master {
 
     public static final int woeid = 23424977; // United States
     public static final int topicsCount = 2; // the top 5 trends
-    public static final int tweetsCount = 100; // 1500 tweets for each topic
+    public static final int tweetsCount = 150; // 1500 tweets for each topic
 
     //
 
@@ -152,8 +153,8 @@ public class Master {
         String text = tweet.getString("text");
         ArrayList<String> words = stemmer.normalize(text);
 
-        System.out.println("analizeTweet: " + text);
-        System.out.println("analizedTweet: " + words.toString());
+        System.out.println("original: " + text);
+        System.out.println("stemmed:  " + stemmer.stem(text));
         // TODO impl
         System.out.println("-------------------------------------------");
     }

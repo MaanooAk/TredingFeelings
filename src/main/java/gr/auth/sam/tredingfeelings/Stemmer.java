@@ -35,6 +35,37 @@ public class Stemmer {
         System.out.println("Stemmer: Loaded " + stopwords.size() + " stopwords");
     }
 
+    /**
+     * Remove all no character characters and convert to lower case
+     */
+    public String clean(String text) {
+        return text.replaceAll("[^a-z]+", " ").replaceAll("[ ]+", " ");
+    }
+    
+    /**
+     * TODO doc
+     */
+    public String removeLinks(String text) {
+        return text.replaceAll("http[^ ]*", " ");
+    }
+    
+    /**
+     * TODO doc
+     */
+    public String stem(String text) {
+        text = text.toLowerCase();
+        text = removeLinks(text);
+        text = clean(text);
+        
+        StringBuilder sb = new StringBuilder();
+        
+        for (String word : text.split(" ")) {
+            if (!isStopWord(word)) sb.append(word).append(" ");
+        }
+        
+        return sb.toString();
+    }
+    
     public ArrayList<String> normalize(String text) {
 
         // TODO remove non character
