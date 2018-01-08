@@ -16,8 +16,8 @@ public class GraphicalProgressBar extends ProgressBar {
     private final JLabel labelProgress;
     private final JLabel labelMessage;
 
-    public GraphicalProgressBar(String title, int max) {
-        super(title, max);
+    public GraphicalProgressBar(ProgressBar parent, String title, int max) {
+        super(parent, title, max);
 
         dpb = new JProgressBar(0, max);
         labelProgress = new JLabel("0%", SwingConstants.CENTER);
@@ -34,6 +34,12 @@ public class GraphicalProgressBar extends ProgressBar {
         dlg.setSize(300, 75);
         dlg.setLocationRelativeTo(null); // center on screen
 
+        if (parent instanceof GraphicalProgressBar) {
+            GraphicalProgressBar gparent = (GraphicalProgressBar) parent;
+            
+            dlg.setLocation(dlg.getX(), gparent.dlg.getY() + 80);
+        }
+        
         new Thread(new Runnable() {
 
             public void run() {

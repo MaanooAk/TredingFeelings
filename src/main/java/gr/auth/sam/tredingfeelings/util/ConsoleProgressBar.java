@@ -3,8 +3,8 @@ package gr.auth.sam.tredingfeelings.util;
 
 public class ConsoleProgressBar extends ProgressBar {
 
-    public ConsoleProgressBar(String title, int max) {
-        super(title, max);
+    public ConsoleProgressBar(ProgressBar parent, String title, int max) {
+        super(parent, title, max);
     }
 
     @Override
