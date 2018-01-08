@@ -43,12 +43,11 @@ public class Master {
     }
 
     public void start() {
-        // TODO Implement
 
         try {
             storage.open();
 
-            storage.drop();
+            storage.drop(); // TODO handle
 
             twitter.authenticate();
 
@@ -89,6 +88,7 @@ public class Master {
     private void storeTweets(String name) throws UnirestException {
         System.out.println(("Master:    storing tweets from: " + name));
         storage.createCollection(name);
+        storage.createCollection(name + "_");
 
         String max_id;
         int count = 0;
@@ -152,6 +152,8 @@ public class Master {
                 System.out.println("Stopped");
                 System.exit(0);
             }
+
+            storage.insert(collection + "_", etweet);
         }
     }
 
