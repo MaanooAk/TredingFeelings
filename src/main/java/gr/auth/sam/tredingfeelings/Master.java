@@ -10,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mongodb.client.MongoCursor;
 
 
 /*
@@ -144,9 +143,9 @@ public class Master {
 
     private void analizeTrent(String collection) {
 
-        for (MongoCursor<Document> it = storage.getTweets(collection); it.hasNext();) {
+        for (Document i : storage.getTweets(collection)) {
 
-            JSONObject etweet = analizeTweet(new JSONObject(it.next().toJson()));
+            JSONObject etweet = analizeTweet(new JSONObject(i.toJson()));
 
             if (etweet == null) {
                 System.out.println("Stopped");

@@ -5,9 +5,10 @@ import org.bson.Document;
 import org.json.JSONObject;
 
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoIterable;
 
 import gr.auth.sam.tredingfeelings.IStorage;
 
@@ -61,7 +62,7 @@ public class MongoStorage implements IStorage {
     }
 
     @Override
-    public Iterable<String> getCollections() {
+    public MongoIterable<String> getCollections() {
         return database.listCollectionNames();
     }
 
@@ -71,9 +72,9 @@ public class MongoStorage implements IStorage {
     }
 
     @Override
-    public MongoCursor<Document> getTweets(String collection) {
+    public FindIterable<Document> getTweets(String collection) {
         MongoCollection<Document> tweets = database.getCollection(collection);
-        return tweets.find().iterator();
+        return tweets.find();
     }
 
     @Override
