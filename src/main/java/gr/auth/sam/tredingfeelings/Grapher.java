@@ -36,32 +36,31 @@ public class Grapher {
 
     public void start() {
 
-        progress = ProgressBar.create("Grapher", Master.topicsCount * 2);
+        progress = ProgressBar.create("Grapher", Master.topicsCount * 3);
 
         for (String collection : storage.getCollections()) {
-//            progress.incAndShow("Trend: " + collection);
             progress.setMessage("Trend: " + collection);
 
-            work(collection);
+            doWordPlots(collection);
+
+            doUserPlots(collection);
         }
 
         progress.close();
+
     }
 
-    private void work(String collection) {
+    private void doWordPlots(String collection) {
 
-//        ProgressBar progress = ProgressBar.create(this.progress, "Grapher sub",2);
-
-        workWordFreq(collection, "text");
         progress.incAndShow();
+        createWordPlots(collection, "text");
 
-        workWordFreq(collection, "stemmed");
         progress.incAndShow();
+        createWordPlots(collection, "stemmed");
 
-//        progress.close();
     }
 
-    private void workWordFreq(String collection, String field) {
+    private void createWordPlots(String collection, String field) {
 
         Iterable<Document> tweets = storage.getTweets(collection);
 
@@ -105,6 +104,73 @@ public class Grapher {
         plotter.createZipfChart(collection + " | " + field, CHART_W, CHART_H, "rank", rs, "frequency", fs);
         plotter.exportChart("output/" + collection + "." + field + ".zipf.png");
 
+    }
+
+    private void doUserPlots(String collection) {
+        
+        progress.incAndShow();
+
+        Iterable<Document> tweets = storage.getTweets(collection);
+
+        HashMap<String, Integer> sent = new HashMap<>();
+        HashMap<String, Integer> counts = new HashMap<>();
+        ArrayList<Float> ratios = new ArrayList<>();
+        ArrayList<Integer> xs = new ArrayList<>();
+        ArrayList<String> labelx = new ArrayList<>(3);
+        ArrayList<Integer> labely = new ArrayList<>(3);
+        labelx.add("negative");
+        labelx.add("neutral");
+        labelx.add("positive");
+        labely.add(0);
+        labely.add(0);
+        labely.add(0);
+
+        for (Document t : tweets) {
+            String id = t.get("user", Document.class).get("id") + "";
+            int label = labelToInt(t.getString("label"));
+
+            if (sent.containsKey(id)) {
+                sent.put(id, sent.get(id) + label);
+                counts.put(id, counts.get(id) + 1);
+            } else {
+                sent.put(id, label);
+                counts.put(id, 1);
+
+                int followers = t.get("user", Document.class).getInteger("followers_count");
+                int following = t.get("user", Document.class).getInteger("friends_count");
+
+                if (following == 0) following = 1;
+                if (followers == 0) followers = 1;
+
+//                float ratio = followers * 1f / following;
+                float ratio = following * 1f / followers;
+                ratios.add(ratio);
+                xs.add(xs.size() + 1);
+            }
+        }
+
+        for (String id : sent.keySet()) {
+            float average = sent.get(id) * 1f / counts.get(id);
+
+            int index = labelToIndex(average);
+            labely.set(index, labely.get(index) + 1);
+        }
+
+        plotter.createSimpleChart(collection + " | Sentiment", CHART_W, CHART_H, "", labelx, "", labely);
+        plotter.exportChart("output/" + collection + ".sentiment.png");
+
+        plotter.createCumulativeChart(collection + " | followers / friends", CHART_W, CHART_H, "", xs, "ratio", ratios);
+        plotter.exportChart("output/" + collection + ".ratios.png");
+    }
+
+    private static int labelToInt(String label) {
+        if (label.startsWith("p")) return 1;
+        if (label.startsWith("neg")) return -1;
+        return 0;
+    }
+
+    private static int labelToIndex(float value) {
+        return value < -0.33f ? 0 : value > 0.33f ? 2 : 1;
     }
 
 }
