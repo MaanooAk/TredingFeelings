@@ -59,9 +59,11 @@ public abstract class ProgressBar {
     }
 
     /**
-     * Show the progress based on the current, max and message fields
+     * Show the progress based on the current, max message fields
      */
     public abstract void show();
+
+    public abstract void nextBar();
 
     public abstract void close();
 
