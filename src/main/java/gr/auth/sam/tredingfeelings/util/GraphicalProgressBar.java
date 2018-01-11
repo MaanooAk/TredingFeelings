@@ -70,4 +70,8 @@ public class GraphicalProgressBar extends ProgressBar {
         dlg.dispose();
     }
 
+    @Override
+    public void nextBar() {
+        // do nothing
+    }
 }
