@@ -67,6 +67,7 @@ public class Gatherer extends Operator {
 
         for (String topic : trends) {
             progress.incAndShow(topic);
+            progress.nextBar(); //TODO fix/remove
 
             storeTweets(topic);
         }
