@@ -26,7 +26,9 @@ public class Sentiment implements ISentiment {
 
     @Override
     public JSONObject analyze(String text) throws UnirestException {
-
+        
+        if (text.length() == 0) text = "nothing";
+        
         final HttpResponse<JsonNode> responce = Unirest.post(EP)
                 .field(EP_TEXT, text)
                 .asJson();

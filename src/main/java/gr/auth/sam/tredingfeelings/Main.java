@@ -42,7 +42,7 @@ public class Main {
             storage.drop();
         }
 
-        if (p.gather && p.clear) {
+        if (p.gather) {
             final ITwitter twitter = new Twitter();
 
             new Gatherer(p, storage, twitter).start();
