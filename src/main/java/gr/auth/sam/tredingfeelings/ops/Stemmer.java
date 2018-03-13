@@ -1,11 +1,10 @@
 
 package gr.auth.sam.tredingfeelings.ops;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 
@@ -24,11 +23,12 @@ public class Stemmer {
     private void loadStopwords() {
         try {
 
-            Path path = Paths.get(ClassLoader.getSystemResource(PATH_STOPWORDS).toURI());
+            InputStream stream = ClassLoader.getSystemResource(PATH_STOPWORDS).openStream();
 
-            Files.lines(path).forEach(stopwords::add);
+            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+            br.lines().forEach(stopwords::add);
 
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Stemmer: Failed to load stopwords");
         }
 
@@ -51,7 +51,7 @@ public class Stemmer {
 
         return sb.toString();
     }
-    
+
     /**
      * Remove all no character characters and convert to lower case
      */

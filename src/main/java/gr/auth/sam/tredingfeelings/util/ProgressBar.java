@@ -10,8 +10,7 @@ public abstract class ProgressBar {
     public static ProgressBar create(ProgressBar parent, String title, int max) {
 
         try {
-            if (java.net.InetAddress.getLocalHost().getHostName().startsWith("maapc"))
-                return new GraphicalProgressBar(parent, title, max);
+            return new GraphicalProgressBar(parent, title, max);
         } catch (Exception e) {}
 
         return new ConsoleProgressBar(parent, title, max);
